@@ -1,0 +1,56 @@
+#!/usr/bin/env sh
+set -eu
+
+ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+cd "$ROOT_DIR"
+
+ensure_env() {
+  if [ ! -f .env ]; then
+    cp .env.example .env
+    echo "Создан .env с локальными учебными настройками."
+  fi
+}
+
+load_env() {
+  set -a
+  # shellcheck disable=SC1091
+  . ./.env
+  set +a
+}
+
+case "${1:-help}" in
+  start)
+    ensure_env
+    load_env
+    docker compose up -d --build
+    echo "web-security-lab запущен."
+    echo "На компьютере преподавателя: http://localhost:${HTTP_PORT:-8080}"
+    echo "Адрес для студентов: http://<IP-компьютера-преподавателя>:${HTTP_PORT:-8080}"
+    echo "Панель преподавателя: http://localhost:${HTTP_PORT:-8080}/teacher"
+    echo "Ключ преподавателя находится в .env (TEACHER_TOKEN)."
+    ;;
+  stop)
+    docker compose down
+    ;;
+  reset)
+    ensure_env
+    load_env
+    docker compose down -v
+    docker compose up -d --build
+    echo "Стенд сброшен: http://localhost:${HTTP_PORT:-8080}"
+    ;;
+  status)
+    docker compose ps
+    ;;
+  logs)
+    docker compose logs -f --tail=150
+    ;;
+  help|-h|--help)
+    echo "Использование: ./lab {start|stop|reset|status|logs}"
+    ;;
+  *)
+    echo "Неизвестная команда: $1" >&2
+    echo "Использование: ./lab {start|stop|reset|status|logs}" >&2
+    exit 2
+    ;;
+esac

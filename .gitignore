@@ -1,0 +1,8 @@
+.env
+.DS_Store
+api/vendor/
+api/.phpunit.cache/
+api/var/
+frontend/node_modules/
+frontend/.next/
+docs/design/render-*.png

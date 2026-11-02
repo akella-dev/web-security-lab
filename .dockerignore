@@ -1,0 +1,7 @@
+.git
+.env
+api/vendor
+api/.phpunit.cache
+frontend/node_modules
+frontend/.next
+docs
